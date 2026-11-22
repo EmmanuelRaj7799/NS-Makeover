@@ -112,6 +112,13 @@ export const BridalChatbot: React.FC<BridalChatbotProps> = ({ onNavigate }) => {
         body: JSON.stringify({ messages: apiMessages }),
       });
 
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        throw new Error(
+          'Live AI Concierge requires a backend server (static hosts like GitHub Pages cannot run /api routes). You can reach Hema Suzan directly on WhatsApp at +91 63005 64531 or use our Book Now page.',
+        );
+      }
+
       const data = (await res.json()) as { reply?: string; error?: string };
 
       if (!res.ok || !data.reply) {

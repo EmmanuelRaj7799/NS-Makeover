@@ -58,7 +58,7 @@ export const STUDIO_CONTACT = {
   phoneHref: 'tel:+916300564531',
   whatsappNumber: '916300564531',
   whatsappBaseUrl: 'https://wa.me/916300564531',
-  crestImagePath: '/assets/aistudio/Gemini_Generated_Image_x3bpkbx3bpkbx3bp_0a1ea82e.png',
+  crestImagePath: `${import.meta.env.BASE_URL}assets/aistudio/Gemini_Generated_Image_x3bpkbx3bpkbx3bp_0a1ea82e.png`,
   creatorCredit: 'Created by A&I Nexux',
 } as const;
 

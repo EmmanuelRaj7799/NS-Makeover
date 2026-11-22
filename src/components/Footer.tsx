@@ -33,7 +33,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Brand & Founders Credit */}
           <div className="md:col-span-5 space-y-4">
             <a
-              href="/"
+              href="#/"
               onClick={(e) => handleLinkClick(e, '/')}
               className="inline-block"
               aria-label="NS Makeover Home"
@@ -57,7 +57,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               {NAV_LINKS.map((link) => (
                 <a
                   key={link.path}
-                  href={link.path}
+                  href={`#${link.path}`}
                   onClick={(e) => handleLinkClick(e, link.path)}
                   className="text-sm text-[#E6D9D1]/80 hover:text-[#E6CEB5] transition-colors w-fit"
                 >

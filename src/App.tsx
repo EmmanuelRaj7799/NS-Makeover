@@ -14,17 +14,23 @@ import { PageRoute, ServiceName } from './data/studioContent';
 
 const VALID_ROUTES: PageRoute[] = ['/', '/specialties', '/services', '/founders', '/book'];
 
-function resolveRoute(pathname: string): PageRoute {
-  const normalized = pathname.replace(/\/+$/, '') || '/';
-  return (VALID_ROUTES.includes(normalized as PageRoute) ? normalized : '/') as PageRoute;
+function resolveRouteFromLocation(): PageRoute {
+  if (typeof window === 'undefined') return '/';
+  const rawHash = window.location.hash.replace(/^#/, '');
+  if (rawHash) {
+    const normalizedHash = rawHash.replace(/\/+$/, '') || '/';
+    if (VALID_ROUTES.includes(normalizedHash as PageRoute)) {
+      return normalizedHash as PageRoute;
+    }
+  }
+  const normalizedPath = window.location.pathname.replace(/\/+$/, '') || '/';
+  return (VALID_ROUTES.includes(normalizedPath as PageRoute) ? normalizedPath : '/') as PageRoute;
 }
 
 export default function App() {
   const scrollProgressRef = useRef(0);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [activeRoute, setActiveRoute] = useState<PageRoute>(() =>
-    typeof window !== 'undefined' ? resolveRoute(window.location.pathname) : '/',
-  );
+  const [activeRoute, setActiveRoute] = useState<PageRoute>(() => resolveRouteFromLocation());
   const [selectedServices, setSelectedServices] = useState<ServiceName[]>([
     'HD Bridal Makeup',
   ]);
@@ -32,14 +38,18 @@ export default function App() {
   const isDarkTheme =
     activeRoute === '/services' || activeRoute === '/founders' || activeRoute === '/book';
 
-  // Sync browser back/forward navigation
+  // Sync browser back/forward and hash changes across GitHub Pages & local preview
   useEffect(() => {
-    const handlePopState = () => {
-      setActiveRoute(resolveRoute(window.location.pathname));
+    const syncRoute = () => {
+      setActiveRoute(resolveRouteFromLocation());
       window.scrollTo({ top: 0, behavior: 'auto' });
     };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', syncRoute);
+    window.addEventListener('popstate', syncRoute);
+    return () => {
+      window.removeEventListener('hashchange', syncRoute);
+      window.removeEventListener('popstate', syncRoute);
+    };
   }, []);
 
   // Track scroll depth per page for top rose-gold progress bar and 3D scene parallax
@@ -78,8 +88,11 @@ export default function App() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return current;
       }
-      if (typeof window !== 'undefined' && window.location.pathname !== path) {
-        window.history.pushState({ route: path }, '', path);
+      if (typeof window !== 'undefined') {
+        const nextHash = `#${path}`;
+        if (window.location.hash !== nextHash) {
+          window.location.hash = nextHash;
+        }
       }
       window.scrollTo({ top: 0, behavior: 'auto' });
       scrollProgressRef.current = 0;

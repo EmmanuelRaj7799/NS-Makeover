@@ -49,7 +49,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         >
           {/* Zone 1: NS Makeover Crown Logo */}
           <a
-            href="/"
+            href="#/"
             onClick={(e) => handleRouteClick(e, '/')}
             className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B76] rounded-lg"
             aria-label="NS Makeover Home"
@@ -67,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               return (
                 <a
                   key={link.path}
-                  href={link.path}
+                  href={`#${link.path}`}
                   onClick={(e) => handleRouteClick(e, link.path)}
                   aria-current={isActive ? 'page' : undefined}
                   className={`relative text-xs font-medium tracking-[0.16em] uppercase whitespace-nowrap shrink-0 py-1.5 transition-colors duration-200 ${
@@ -96,7 +96,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Zone 3: Single Primary Action CTA + Mobile Toggle */}
           <div className="flex items-center gap-3 shrink-0">
             <a
-              href="/book"
+              href="#/book"
               onClick={(e) => handleRouteClick(e, '/book')}
               className="hidden sm:inline-flex items-center justify-center px-5 py-2.5 rounded-full text-xs font-medium tracking-[0.12em] uppercase text-[#FAF6F2] bg-rose-gold-shimmer shadow-[0_10px_24px_-10px_rgba(158,94,99,0.55)] hover:-translate-y-0.5 active:translate-y-0 transition-transform duration-200 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B76]"
             >
@@ -137,7 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 return (
                   <a
                     key={link.path}
-                    href={link.path}
+                    href={`#${link.path}`}
                     onClick={(e) => handleRouteClick(e, link.path)}
                     aria-current={isActive ? 'page' : undefined}
                     className={`px-3 py-3 rounded-xl text-xs font-medium tracking-[0.16em] uppercase transition-colors ${
@@ -154,7 +154,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               })}
               <div className="pt-3 mt-2 border-t border-[#C59B76]/25">
                 <a
-                  href="/book"
+                  href="#/book"
                   onClick={(e) => handleRouteClick(e, '/book')}
                   className="w-full inline-flex items-center justify-center px-5 py-3 rounded-full text-xs font-medium tracking-[0.14em] uppercase text-[#FAF6F2] bg-rose-gold-shimmer"
                 >
