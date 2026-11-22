@@ -1,0 +1,6 @@
+{
+  "name": "NS Makeover",
+  "description": "Luxury bridal makeup, bespoke hairstyling, and professional saree draping studio by founders Naveen and Hema Suzan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
