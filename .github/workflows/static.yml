@@ -25,13 +25,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund --legacy-peer-deps
       - name: Build production bundle
         run: npm run build
-      - name: Create SPA 404 fallback
-        run: cp dist/index.html dist/404.html
+      - name: Prepare GitHub Pages output
+        run: |
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload dist artifact

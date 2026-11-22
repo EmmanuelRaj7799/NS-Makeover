@@ -149,26 +149,27 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({ scrollProgressRef, activ
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let renderer: THREE.WebGLRenderer;
+    let envTarget: THREE.WebGLRenderTarget | null = null;
     try {
       renderer = new THREE.WebGLRenderer({
         antialias: !isSoftwareGl,
         alpha: false,
         powerPreference: 'high-performance',
       });
+
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.08;
+      renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.domElement.style.display = 'block';
+      renderer.domElement.style.width = '100%';
+      renderer.domElement.style.height = '100%';
+      container.appendChild(renderer.domElement);
     } catch {
       setUseFallback2D(true);
       return;
     }
-
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.08;
-    renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.domElement.style.display = 'block';
-    renderer.domElement.style.width = '100%';
-    renderer.domElement.style.height = '100%';
-    container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
     scene.background = COLOR_IVORY.clone();
@@ -182,10 +183,14 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({ scrollProgressRef, activ
     );
     camera.position.set(0, 0, 9.4);
 
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    const envTarget = pmremGenerator.fromScene(new RoomEnvironment(), 0.04);
-    scene.environment = envTarget.texture;
-    pmremGenerator.dispose();
+    try {
+      const pmremGenerator = new THREE.PMREMGenerator(renderer);
+      envTarget = pmremGenerator.fromScene(new RoomEnvironment(), 0.04);
+      scene.environment = envTarget.texture;
+      pmremGenerator.dispose();
+    } catch {
+      envTarget = null;
+    }
 
     const hemiLight = new THREE.HemisphereLight('#FFF7EE', '#472E30', 1.15);
     scene.add(hemiLight);
@@ -384,7 +389,11 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({ scrollProgressRef, activ
     scene.add(dustPoints);
 
     if (!isSoftwareGl) {
-      renderer.compile(scene, camera);
+      try {
+        renderer.compile(scene, camera);
+      } catch {
+        // Non-fatal pre-warm failure; shaders will compile on draw
+      }
     }
 
     const pointer = { targetX: 0, targetY: 0, x: 0, y: 0 };
@@ -511,10 +520,16 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({ scrollProgressRef, activ
 
     function tick() {
       if (disposed) return;
-      const delta = Math.min(clock.getDelta(), 0.05);
-      const elapsed = clock.getElapsedTime();
-      updateScene(elapsed, delta);
-      renderer.render(scene, camera);
+      try {
+        const delta = Math.min(clock.getDelta(), 0.05);
+        const elapsed = clock.getElapsedTime();
+        updateScene(elapsed, delta);
+        renderer.render(scene, camera);
+      } catch {
+        disposed = true;
+        setUseFallback2D(true);
+        return;
+      }
 
       if (isSoftwareGl) {
         afterDraw(tick);
@@ -535,7 +550,7 @@ export const ThreeScene: React.FC<ThreeSceneProps> = ({ scrollProgressRef, activ
       disposables.geometries.forEach((g) => g.dispose());
       disposables.materials.forEach((m) => m.dispose());
       disposables.textures.forEach((t) => t.dispose());
-      envTarget.dispose();
+      envTarget?.dispose();
       renderer.dispose();
       if (renderer.domElement.parentNode === container) {
         container.removeChild(renderer.domElement);
